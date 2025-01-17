@@ -1,4 +1,4 @@
-use bevy::{log::tracing_subscriber::fmt::time, prelude::*};
+use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 const PLAYER_SIZE: Vec2 = Vec2::new(28.0, 28.0);
@@ -91,21 +91,7 @@ fn update_player_input(kbd_input: Res<ButtonInput<KeyCode>>, mut query: Query<&m
         let north = kbd_input.pressed(player.controls.move_north);
         let south = kbd_input.pressed(player.controls.move_south);
 
-        player.inputs.0 = if west {
-            -1
-        } else if east {
-            1
-        } else {
-            0
-        };
-
-        player.inputs.1 = if north {
-            1
-        } else if south {
-            -1
-        } else {
-            0
-        };
+        player.inputs = InputState(east as i8 - west as i8, north as i8 - south as i8);
     }
 }
 
