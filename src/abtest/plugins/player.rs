@@ -95,8 +95,6 @@ fn update_player_input(kbd_input: Res<ButtonInput<KeyCode>>, mut query: Query<&m
             -1
         } else if east {
             1
-        } else if !west && !east {
-            0
         } else {
             0
         };
@@ -105,8 +103,6 @@ fn update_player_input(kbd_input: Res<ButtonInput<KeyCode>>, mut query: Query<&m
             1
         } else if south {
             -1
-        } else if !north && !south {
-            0
         } else {
             0
         };
