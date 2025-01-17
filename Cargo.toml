@@ -1,0 +1,9 @@
+[package]
+name = "abtest"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = "0.15"
+bevy_rapier2d = { version = "0.28", features = [ "enhanced-determinism", "debug-render-2d" ] }
+rand = "0.8.5"
