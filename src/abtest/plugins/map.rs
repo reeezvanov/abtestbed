@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-const MAP_SIZE: Vec2 = Vec2::new(600.0, 396.0);
+const MAP_SIZE: Vec2 = Vec2::new(600.0, 392.0);
 const MAP_OFFSET: Vec2 = Vec2::new(0.0, 0.0);
 
 const NET_SIZE: (u8, u8) = (15, 11);
@@ -9,7 +9,7 @@ const CELL_SIZE: Vec2 = Vec2::new(40.0, 36.0);
 const CELL_BALL_RADIUS: f32 = 18.0;
 
 const BORDER_HOR_SIZE: Vec2 = Vec2::new(608.0, 4.0);
-const BORDER_VER_SIZE: Vec2 = Vec2::new(4.0, 396.0);
+const BORDER_VER_SIZE: Vec2 = Vec2::new(4.0, 392.0);
 
 const BORDER_COLOR: Color = Color::srgb(0.2, 0.8, 0.2);
 const BLOCK_COLOR: Color = Color::srgb(0.2, 0.8, 0.2);
