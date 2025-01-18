@@ -1,5 +1,5 @@
-mod abtest;
+mod abtestbed;
 
 fn main() {
-    abtest::main();
+    abtestbed::main();
 }
