@@ -110,7 +110,7 @@ fn movement_system(
 
         let mut time_delta = 0.0;
         match timestep_mode.as_ref() {
-            TimestepMode::Fixed { dt, substeps } => time_delta = *dt,
+            TimestepMode::Fixed { dt, substeps: _ } => time_delta = *dt,
             _ => (),
         }
 
