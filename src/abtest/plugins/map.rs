@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 const MAP_SIZE: Vec2 = Vec2::new(600.0, 392.0);
-const MAP_OFFSET: Vec2 = Vec2::new(0.0, 0.0);
 
 const NET_SIZE: (u8, u8) = (15, 11);
 const CELL_SIZE: Vec2 = Vec2::new(40.0, 36.0);
@@ -34,7 +33,7 @@ fn spawn_borders(mut commands: Commands) {
         },
         Transform::from_xyz(
             0.0,
-            MAP_OFFSET.y + (MAP_SIZE.y / 2.0) + (BORDER_HOR_SIZE.y / 2.0),
+            (MAP_SIZE.y / 2.0) + (BORDER_HOR_SIZE.y / 2.0),
             0.0,
         ),
         RigidBody::Fixed,
@@ -51,7 +50,7 @@ fn spawn_borders(mut commands: Commands) {
         },
         Transform::from_xyz(
             0.0,
-            MAP_OFFSET.y - (MAP_SIZE.y / 2.0) - (BORDER_HOR_SIZE.y / 2.0),
+            -(MAP_SIZE.y / 2.0) - (BORDER_HOR_SIZE.y / 2.0),
             0.0,
         ),
         RigidBody::Fixed,
@@ -67,7 +66,7 @@ fn spawn_borders(mut commands: Commands) {
             ..Default::default()
         },
         Transform::from_xyz(
-            MAP_OFFSET.x - (MAP_SIZE.x / 2.0) - (BORDER_VER_SIZE.x / 2.0),
+            -(MAP_SIZE.x / 2.0) - (BORDER_VER_SIZE.x / 2.0),
             0.0,
             0.0,
         ),
@@ -84,7 +83,7 @@ fn spawn_borders(mut commands: Commands) {
             ..Default::default()
         },
         Transform::from_xyz(
-            MAP_OFFSET.x + (MAP_SIZE.x / 2.0) + (BORDER_VER_SIZE.x / 2.0),
+            (MAP_SIZE.x / 2.0) + (BORDER_VER_SIZE.x / 2.0),
             0.0,
             0.0,
         ),
@@ -96,8 +95,8 @@ fn spawn_borders(mut commands: Commands) {
 
 fn spawn_scheme(mut commands: Commands) {
     let cell_start_pos = Vec2::new(
-        MAP_OFFSET.x - (MAP_SIZE.x / 2.0) + (CELL_SIZE.x / 2.0),
-        MAP_OFFSET.y + (MAP_SIZE.y / 2.0) - (CELL_SIZE.y / 2.0),
+        -(MAP_SIZE.x / 2.0) + (CELL_SIZE.x / 2.0),
+        (MAP_SIZE.y / 2.0) - (CELL_SIZE.y / 2.0),
     );
 
     for j in 0..NET_SIZE.1 as u8 {
@@ -117,8 +116,8 @@ fn spawn_scheme(mut commands: Commands) {
                     ..Default::default()
                 },
                 Transform::from_xyz(
-                    MAP_OFFSET.x + cell_start_pos.x + (i as f32 * CELL_SIZE.x),
-                    MAP_OFFSET.y + cell_start_pos.y - (j as f32 * CELL_SIZE.y),
+                    cell_start_pos.x + (i as f32 * CELL_SIZE.x),
+                    cell_start_pos.y - (j as f32 * CELL_SIZE.y),
                     0.0,
                 ),
                 RigidBody::Fixed,
