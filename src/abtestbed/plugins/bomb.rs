@@ -40,9 +40,6 @@ pub struct BombExploded {
 }
 
 #[derive(Component)]
-struct ExplosionTimer(Timer);
-
-#[derive(Component)]
 struct Bomb {
     player_id: Uuid,
     color: PlayerColor,
