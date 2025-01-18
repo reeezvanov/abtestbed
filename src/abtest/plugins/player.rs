@@ -2,9 +2,9 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 const PLAYER_SIZE: Vec2 = Vec2::new(28.0, 28.0);
-const PLAYER_SPEED: f32 = 150.0;
+const PLAYER_SPEED: f32 = 100.0;
 const PLAYER_MASS: f32 = 100.0;
-const PLAYER_FRICTION: f32 = 0.13;
+const PLAYER_FRICTION: f32 = 0.0;
 const PLAYER_RESTITUTION: f32 = 0.0;
 
 struct ControlKeys {
