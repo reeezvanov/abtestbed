@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use super::collision::*;
+
 const PLAYER_SIZE: Vec2 = Vec2::new(28.0, 28.0);
 const PLAYER_SPEED: f32 = 100.0;
 const PLAYER_MASS: f32 = 100.0;
@@ -51,6 +53,10 @@ fn spawn_players(mut commands: Commands) {
         Velocity::zero(),
         LockedAxes::ROTATION_LOCKED_Z,
         Collider::cuboid(PLAYER_SIZE.x / 2.0, PLAYER_SIZE.y / 2.0),
+        CollisionGroups::new(
+            Group::from_bits(CollisionMap::PLAYER.0).unwrap(), 
+            Group::from_bits(CollisionMap::PLAYER.1).unwrap()
+        ),
         ColliderMassProperties::Mass(PLAYER_MASS),
         Friction::new(PLAYER_FRICTION),
         Restitution::new(PLAYER_RESTITUTION),
@@ -77,6 +83,10 @@ fn spawn_players(mut commands: Commands) {
         Velocity::zero(),
         LockedAxes::ROTATION_LOCKED_Z,
         Collider::cuboid(PLAYER_SIZE.x / 2.0, PLAYER_SIZE.y / 2.0),
+        CollisionGroups::new(
+            Group::from_bits(CollisionMap::PLAYER.0).unwrap(), 
+            Group::from_bits(CollisionMap::PLAYER.1).unwrap()
+        ),
         ColliderMassProperties::Mass(PLAYER_MASS),
         Friction::new(PLAYER_FRICTION),
         Restitution::new(PLAYER_RESTITUTION),
