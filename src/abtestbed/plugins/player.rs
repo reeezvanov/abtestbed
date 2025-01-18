@@ -14,6 +14,7 @@ struct ControlKeys {
     move_south: KeyCode,
     move_west: KeyCode,
     move_east: KeyCode,
+    set_bomb: KeyCode,
 }
 
 struct InputState(i8, i8);
@@ -40,6 +41,7 @@ fn spawn_players(mut commands: Commands) {
                 move_south: KeyCode::ArrowDown,
                 move_west: KeyCode::ArrowLeft,
                 move_east: KeyCode::ArrowRight,
+                set_bomb: KeyCode::Space
             },
             inputs: InputState(0, 0),
         },
@@ -70,6 +72,7 @@ fn spawn_players(mut commands: Commands) {
                 move_south: KeyCode::KeyS,
                 move_west: KeyCode::KeyA,
                 move_east: KeyCode::KeyD,
+                set_bomb: KeyCode::KeyV
             },
             inputs: InputState(0, 0),
         },
