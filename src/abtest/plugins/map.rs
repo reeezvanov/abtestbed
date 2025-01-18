@@ -7,6 +7,8 @@ const NET_SIZE: (u8, u8) = (15, 11);
 const CELL_SIZE: Vec2 = Vec2::new(40.0, 36.0);
 const CELL_BALL_RADIUS: f32 = 18.0;
 
+const MAP_FRICTION: f32 = 0.0;
+
 const BORDER_HOR_SIZE: Vec2 = Vec2::new(608.0, 4.0);
 const BORDER_VER_SIZE: Vec2 = Vec2::new(4.0, 392.0);
 
@@ -38,7 +40,7 @@ fn spawn_borders(mut commands: Commands) {
         ),
         RigidBody::Fixed,
         Collider::cuboid(BORDER_HOR_SIZE.x / 2.0, BORDER_HOR_SIZE.y / 2.0),
-        Friction::new(0.1),
+        Friction::new(MAP_FRICTION),
     ));
 
     // Spawn bottom border
@@ -55,7 +57,7 @@ fn spawn_borders(mut commands: Commands) {
         ),
         RigidBody::Fixed,
         Collider::cuboid(BORDER_HOR_SIZE.x / 2.0, BORDER_HOR_SIZE.y / 2.0),
-        Friction::new(0.1),
+        Friction::new(MAP_FRICTION),
     ));
 
     // Spawn left border
@@ -72,7 +74,7 @@ fn spawn_borders(mut commands: Commands) {
         ),
         RigidBody::Fixed,
         Collider::cuboid(BORDER_VER_SIZE.x / 2.0, BORDER_VER_SIZE.y / 2.0),
-        Friction::new(0.1),
+        Friction::new(MAP_FRICTION),
     ));
 
     // Spawn right border
@@ -89,7 +91,7 @@ fn spawn_borders(mut commands: Commands) {
         ),
         RigidBody::Fixed,
         Collider::cuboid(BORDER_VER_SIZE.x / 2.0, BORDER_VER_SIZE.y / 2.0),
-        Friction::new(0.1),
+        Friction::new(MAP_FRICTION),
     ));
 }
 
@@ -122,7 +124,7 @@ fn spawn_scheme(mut commands: Commands) {
                 ),
                 RigidBody::Fixed,
                 Collider::ball(CELL_BALL_RADIUS),
-                Friction::new(0.1),
+                Friction::new(MAP_FRICTION),
             ));
         }
     }
