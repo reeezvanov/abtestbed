@@ -16,7 +16,7 @@ pub struct BombPlugin;
 
 impl Plugin for BombPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<BombSetRequested>()
+        app.add_event::<BombPlanted>()
             .add_event::<BombExploded>()
             .add_systems(
                 Update,
@@ -26,7 +26,7 @@ impl Plugin for BombPlugin {
 }
 
 #[derive(Event)]
-pub struct BombSetRequested {
+pub struct BombPlanted {
     pub player_id: Uuid,
     pub player_color: PlayerColor,
     pub player_transform: Transform,
@@ -51,7 +51,7 @@ struct Bomb {
     explode_at: Duration,
 }
 
-fn set_bomb(mut commands: Commands, mut events: EventReader<BombSetRequested>, time: Res<Time>) {
+fn set_bomb(mut commands: Commands, mut events: EventReader<BombPlanted>, time: Res<Time>) {
     for event in events.read() {
         commands.spawn((
             Bomb {

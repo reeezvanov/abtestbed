@@ -3,7 +3,7 @@ use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
 use super::super::common::CollisionMap;
-use super::bomb::{BombExploded, BombSetRequested};
+use super::bomb::{BombExploded, BombPlanted};
 
 const PLAYER_SIZE: Vec2 = Vec2::new(28.0, 28.0);
 const PLAYER_MASS: f32 = 100.0;
@@ -166,7 +166,7 @@ fn spawn_players(mut commands: Commands) {
 fn update_player_input(
     kbd_input: Res<ButtonInput<KeyCode>>,
     mut query: Query<(&mut Player, &Transform)>,
-    mut events: EventWriter<BombSetRequested>,
+    mut events: EventWriter<BombPlanted>,
 ) {
     for (mut player, transform) in &mut query {
         let move_west = kbd_input.pressed(player.controls.move_west);
@@ -178,7 +178,7 @@ fn update_player_input(
         player.inputs.vertical_direction = move_north as i8 - move_south as i8;
 
         if kbd_input.just_pressed(player.controls.set_bomb) && player.bomb_capacity > 0 {
-            events.send(BombSetRequested {
+            events.send(BombPlanted {
                 player_id: player.id,
                 player_color: player.color,
                 player_transform: transform.clone(),
