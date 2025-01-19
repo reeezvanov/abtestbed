@@ -17,13 +17,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_players).add_systems(
             Update,
-            (
-                update_player_input,
-                movement_system,
-                handle_bomb_exploded,
-                // print_curr_cell,
-            )
-                .chain(),
+            (update_player_input, movement_system, handle_bomb_exploded).chain(),
         );
     }
 }
@@ -189,7 +183,7 @@ fn update_player_input(
             events.send(BombPlanted {
                 player_id: player.id,
                 player_color: player.color,
-                player_transform: transform.clone(),
+                player_cell: Cell::from_transform(transform),
                 player_fire_range: player.fire_range,
                 player_bomb_detonation_period: player.bomb_detonation_period,
             });
@@ -236,13 +230,5 @@ fn handle_bomb_exploded(mut events: EventReader<BombExploded>, mut query: Query<
                 break;
             }
         }
-    }
-}
-
-fn print_curr_cell(query: Query<&Transform, With<Player>>) {
-    return;
-
-    for t in &query {
-        print!("Cell {:?}", Cell::from_transform(t))
     }
 }

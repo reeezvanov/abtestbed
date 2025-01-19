@@ -5,6 +5,7 @@ use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
 use super::super::common::CollisionMap;
+use super::map::Cell;
 use super::player::{Player, PlayerColor};
 
 const BOMB_SIZE: Vec2 = Vec2::new(28.0, 28.0);
@@ -29,7 +30,7 @@ impl Plugin for BombPlugin {
 pub struct BombPlanted {
     pub player_id: Uuid,
     pub player_color: PlayerColor,
-    pub player_transform: Transform,
+    pub player_cell: Cell,
     pub player_fire_range: u8,
     pub player_bomb_detonation_period: f32,
 }
@@ -38,7 +39,7 @@ pub struct BombPlanted {
 pub struct BombExploded {
     pub player_id: Uuid,
     pub bomb_color: PlayerColor,
-    pub bomb_transform: Transform,
+    pub bomb_cell: Cell,
     pub bomb_fire_range: u8,
 }
 
@@ -47,7 +48,6 @@ struct Bomb {
     player_id: Uuid,
     color: PlayerColor,
     fire_range: u8,
-    transform: Transform,
     explode_at: Duration,
 }
 
@@ -58,7 +58,6 @@ fn set_bomb(mut commands: Commands, mut events: EventReader<BombPlanted>, time: 
                 player_id: event.player_id,
                 color: event.player_color,
                 fire_range: event.player_fire_range,
-                transform: event.player_transform, // Make transform from map point wher player set bomb
                 explode_at: time.elapsed()
                     + Duration::from_secs_f32(event.player_bomb_detonation_period),
             },
@@ -67,7 +66,7 @@ fn set_bomb(mut commands: Commands, mut events: EventReader<BombPlanted>, time: 
                 custom_size: Some(BOMB_SIZE),
                 ..Default::default()
             },
-            event.player_transform, // Make transform from map point wher player set bomb
+            event.player_cell.center(),
             // RigidBody::Dynamic,
             RigidBody::Fixed,
             Sensor,
@@ -103,7 +102,7 @@ fn explode_bomb(
         events.send(BombExploded {
             player_id: b.player_id,
             bomb_color: b.color,
-            bomb_transform: t.clone(),
+            bomb_cell: Cell::from_transform(t),
             bomb_fire_range: b.fire_range,
         });
     }
@@ -119,21 +118,21 @@ fn handle_collision_events(
         match collision_event {
             CollisionEvent::Started(e1, e2, _) => {
                 if players.get(*e1).is_ok() || bombs.get(*e2).is_ok() {
-                    println!("Collision started: {:?} is Player and {:?} is Bomb", *e1, *e2);
+                    // println!("Collision started: {:?} is Player and {:?} is Bomb", *e1, *e2);
                 } else if players.get(*e2).is_ok() || bombs.get(*e1).is_ok() {
-                    println!("Collision started: {:?} is Player and {:?} is Bomb", *e2, *e1);
+                    // println!("Collision started: {:?} is Player and {:?} is Bomb", *e2, *e1);
                 } else {
                     ()
                 }
             }
             CollisionEvent::Stopped(e1, e2, _) => {
                 if players.get(*e1).is_ok() || bombs.get(*e2).is_ok() {
-                    println!("Collision stopped: {:?} is Player and {:?} is Bomb", *e1, *e2);
+                    // println!("Collision stopped: {:?} is Player and {:?} is Bomb", *e1, *e2);
                     if commands.get_entity(*e2).is_some() {
                         commands.entity(*e2).remove::<Sensor>();
                     }
                 } else if players.get(*e2).is_ok() || bombs.get(*e1).is_ok() {
-                    println!("Collision stopped: {:?} is Player and {:?} is Bomb", *e2, *e1);
+                    // println!("Collision stopped: {:?} is Player and {:?} is Bomb", *e2, *e1);
                     if commands.get_entity(*e1).is_some() {
                         commands.entity(*e1).remove::<Sensor>();
                     }

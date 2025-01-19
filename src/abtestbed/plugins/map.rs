@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
+use bevy_rapier2d::{na::{Complex, ComplexField}, prelude::*};
 
 const MAP_SIZE: Vec2 = Vec2::new(600.0, 392.0);
 
@@ -14,6 +14,11 @@ const BORDER_VER_SIZE: Vec2 = Vec2::new(4.0, 392.0);
 
 const BORDER_COLOR: Color = Color::srgb(0.2, 0.8, 0.2);
 const BLOCK_COLOR: Color = Color::srgb(0.2, 0.8, 0.2);
+
+const CELL_START_POS: Vec2 = Vec2::new(
+    -(MAP_SIZE.x / 2.0) + (CELL_SIZE.x / 2.0),
+    (MAP_SIZE.y / 2.0) - (CELL_SIZE.y / 2.0),
+);
 
 pub struct MapPlugin;
 
@@ -30,18 +35,18 @@ pub struct Cell(pub u8, pub u8);
 
 impl Cell {
     pub fn from_transform(transform: &Transform) -> Self {
-        Cell(0, 0)
+        let position = Vec2::new(
+            ComplexField::round((transform.translation.x - CELL_START_POS.x) / CELL_SIZE.x),
+            ComplexField::round((-transform.translation.y + CELL_START_POS.y) / CELL_SIZE.y),
+        );
+
+        Cell(position.x as u8, position.y as u8)
     }
 
     pub fn center(&self) -> Transform {
-        let cell_start_pos = Vec2::new(
-            -(MAP_SIZE.x / 2.0) + (CELL_SIZE.x / 2.0),
-            (MAP_SIZE.y / 2.0) - (CELL_SIZE.y / 2.0),
-        );
-    
         Transform::from_xyz(
-            cell_start_pos.x + (self.0 as f32 * CELL_SIZE.x),
-            cell_start_pos.y - (self.1 as f32 * CELL_SIZE.y),
+            CELL_START_POS.x + (self.0 as f32 * CELL_SIZE.x),
+            CELL_START_POS.y - (self.1 as f32 * CELL_SIZE.y),
             0.0,
         )
     }
@@ -102,11 +107,6 @@ fn spawn_borders(mut commands: Commands) {
 }
 
 fn spawn_scheme(mut commands: Commands) {
-    let cell_start_pos = Vec2::new(
-        -(MAP_SIZE.x / 2.0) + (CELL_SIZE.x / 2.0),
-        (MAP_SIZE.y / 2.0) - (CELL_SIZE.y / 2.0),
-    );
-
     for j in 0..NET_SIZE.1 as u8 {
         if j % 2 == 0 {
             continue;
@@ -124,8 +124,8 @@ fn spawn_scheme(mut commands: Commands) {
                     ..Default::default()
                 },
                 Transform::from_xyz(
-                    cell_start_pos.x + (i as f32 * CELL_SIZE.x),
-                    cell_start_pos.y - (j as f32 * CELL_SIZE.y),
+                    CELL_START_POS.x + (i as f32 * CELL_SIZE.x),
+                    CELL_START_POS.y - (j as f32 * CELL_SIZE.y),
                     0.0,
                 ),
                 RigidBody::Fixed,
