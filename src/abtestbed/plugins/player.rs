@@ -4,24 +4,42 @@ use uuid::Uuid;
 
 use super::super::common::CollisionMap;
 use super::bomb::{BombExploded, BombPlanted};
+use super::map::Cell;
 
 const PLAYER_SIZE: Vec2 = Vec2::new(28.0, 28.0);
 const PLAYER_MASS: f32 = 100.0;
 const PLAYER_FRICTION: f32 = 0.0;
 const PLAYER_RESTITUTION: f32 = 0.0;
 
+pub struct PlayerPlugin;
+
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, spawn_players).add_systems(
+            Update,
+            (
+                update_player_input,
+                movement_system,
+                handle_bomb_exploded,
+                // print_curr_cell,
+            )
+                .chain(),
+        );
+    }
+}
+
 #[derive(Copy, Clone)]
 pub enum PlayerColor {
     WHITE,
     BLACK,
-    RED,
-    GREEN,
-    BLUE,
-    ORANGE,
-    PINK,
-    GRAY,
-    YELLOW,
-    PURPLE,
+    // RED,
+    // GREEN,
+    // BLUE,
+    // ORANGE,
+    // PINK,
+    // GRAY,
+    // YELLOW,
+    // PURPLE,
 }
 
 impl PlayerColor {
@@ -29,14 +47,14 @@ impl PlayerColor {
         match self {
             PlayerColor::WHITE => Color::srgb(0.85, 0.85, 0.85),
             PlayerColor::BLACK => Color::srgb(0.35, 0.35, 0.35),
-            PlayerColor::RED => Color::srgb(0.9, 0.1, 0.1),
-            PlayerColor::GREEN => Color::srgb(0.1, 0.9, 0.1),
-            PlayerColor::BLUE => Color::srgb(0.1, 0.1, 0.9),
-            PlayerColor::ORANGE => todo!(),
-            PlayerColor::PINK => todo!(),
-            PlayerColor::GRAY => todo!(),
-            PlayerColor::YELLOW => todo!(),
-            PlayerColor::PURPLE => todo!(),
+            // PlayerColor::RED => Color::srgb(0.9, 0.1, 0.1),
+            // PlayerColor::GREEN => Color::srgb(0.1, 0.9, 0.1),
+            // PlayerColor::BLUE => Color::srgb(0.1, 0.1, 0.9),
+            // PlayerColor::ORANGE => todo!(),
+            // PlayerColor::PINK => todo!(),
+            // PlayerColor::GRAY => todo!(),
+            // PlayerColor::YELLOW => todo!(),
+            // PlayerColor::PURPLE => todo!(),
         }
     }
 }
@@ -96,16 +114,6 @@ impl std::default::Default for Player {
         }
     }
 }
-pub struct PlayerPlugin;
-
-impl Plugin for PlayerPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_players).add_systems(
-            Update,
-            (update_player_input, movement_system, handle_bomb_exploded).chain(),
-        );
-    }
-}
 
 fn spawn_players(mut commands: Commands) {
     commands.spawn((
@@ -115,7 +123,7 @@ fn spawn_players(mut commands: Commands) {
             custom_size: Some(PLAYER_SIZE),
             ..default()
         },
-        Transform::from_xyz(40.0, 0.0, 0.0),
+        Cell(0, 0).center(),
         RigidBody::Dynamic,
         Velocity::zero(),
         LockedAxes::ROTATION_LOCKED_Z,
@@ -147,7 +155,7 @@ fn spawn_players(mut commands: Commands) {
             custom_size: Some(PLAYER_SIZE),
             ..default()
         },
-        Transform::from_xyz(40.0, 80.0, 0.0),
+        Cell(5, 2).center(),
         RigidBody::Dynamic,
         Velocity::zero(),
         LockedAxes::ROTATION_LOCKED_Z,
@@ -228,5 +236,13 @@ fn handle_bomb_exploded(mut events: EventReader<BombExploded>, mut query: Query<
                 break;
             }
         }
+    }
+}
+
+fn print_curr_cell(query: Query<&Transform, With<Player>>) {
+    return;
+
+    for t in &query {
+        print!("Cell {:?}", Cell::from_transform(t))
     }
 }
