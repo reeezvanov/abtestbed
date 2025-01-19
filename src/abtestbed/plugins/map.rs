@@ -25,6 +25,28 @@ impl Plugin for MapPlugin {
     }
 }
 
+#[derive(Debug, Copy, Clone, Default)]
+pub struct Cell(pub u8, pub u8);
+
+impl Cell {
+    pub fn from_transform(transform: &Transform) -> Self {
+        Cell(0, 0)
+    }
+
+    pub fn center(&self) -> Transform {
+        let cell_start_pos = Vec2::new(
+            -(MAP_SIZE.x / 2.0) + (CELL_SIZE.x / 2.0),
+            (MAP_SIZE.y / 2.0) - (CELL_SIZE.y / 2.0),
+        );
+    
+        Transform::from_xyz(
+            cell_start_pos.x + (self.0 as f32 * CELL_SIZE.x),
+            cell_start_pos.y - (self.1 as f32 * CELL_SIZE.y),
+            0.0,
+        )
+    }
+}
+
 fn spawn_borders(mut commands: Commands) {
     // Spawn top border
     commands.spawn((
@@ -33,11 +55,7 @@ fn spawn_borders(mut commands: Commands) {
             custom_size: Some(BORDER_HOR_SIZE),
             ..Default::default()
         },
-        Transform::from_xyz(
-            0.0,
-            (MAP_SIZE.y / 2.0) + (BORDER_HOR_SIZE.y / 2.0),
-            0.0,
-        ),
+        Transform::from_xyz(0.0, (MAP_SIZE.y / 2.0) + (BORDER_HOR_SIZE.y / 2.0), 0.0),
         RigidBody::Fixed,
         Collider::cuboid(BORDER_HOR_SIZE.x / 2.0, BORDER_HOR_SIZE.y / 2.0),
         Friction::new(MAP_FRICTION),
@@ -50,11 +68,7 @@ fn spawn_borders(mut commands: Commands) {
             custom_size: Some(BORDER_HOR_SIZE),
             ..Default::default()
         },
-        Transform::from_xyz(
-            0.0,
-            -(MAP_SIZE.y / 2.0) - (BORDER_HOR_SIZE.y / 2.0),
-            0.0,
-        ),
+        Transform::from_xyz(0.0, -(MAP_SIZE.y / 2.0) - (BORDER_HOR_SIZE.y / 2.0), 0.0),
         RigidBody::Fixed,
         Collider::cuboid(BORDER_HOR_SIZE.x / 2.0, BORDER_HOR_SIZE.y / 2.0),
         Friction::new(MAP_FRICTION),
@@ -67,11 +81,7 @@ fn spawn_borders(mut commands: Commands) {
             custom_size: Some(BORDER_VER_SIZE),
             ..Default::default()
         },
-        Transform::from_xyz(
-            -(MAP_SIZE.x / 2.0) - (BORDER_VER_SIZE.x / 2.0),
-            0.0,
-            0.0,
-        ),
+        Transform::from_xyz(-(MAP_SIZE.x / 2.0) - (BORDER_VER_SIZE.x / 2.0), 0.0, 0.0),
         RigidBody::Fixed,
         Collider::cuboid(BORDER_VER_SIZE.x / 2.0, BORDER_VER_SIZE.y / 2.0),
         Friction::new(MAP_FRICTION),
@@ -84,11 +94,7 @@ fn spawn_borders(mut commands: Commands) {
             custom_size: Some(BORDER_VER_SIZE),
             ..Default::default()
         },
-        Transform::from_xyz(
-            (MAP_SIZE.x / 2.0) + (BORDER_VER_SIZE.x / 2.0),
-            0.0,
-            0.0,
-        ),
+        Transform::from_xyz((MAP_SIZE.x / 2.0) + (BORDER_VER_SIZE.x / 2.0), 0.0, 0.0),
         RigidBody::Fixed,
         Collider::cuboid(BORDER_VER_SIZE.x / 2.0, BORDER_VER_SIZE.y / 2.0),
         Friction::new(MAP_FRICTION),
