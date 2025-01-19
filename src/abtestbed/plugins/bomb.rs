@@ -5,7 +5,7 @@ use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
 use super::super::common::CollisionMap;
-use super::player::PlayerColor;
+use super::player::{Player, PlayerColor};
 
 const BOMB_SIZE: Vec2 = Vec2::new(28.0, 28.0);
 const BOMB_MASS: f32 = 100.0;
@@ -18,7 +18,10 @@ impl Plugin for BombPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<BombSetRequested>()
             .add_event::<BombExploded>()
-            .add_systems(Update, (set_bomb, explode_bomb).chain());
+            .add_systems(
+                Update,
+                (set_bomb, explode_bomb, handle_collision_events).chain(),
+            );
     }
 }
 
@@ -65,7 +68,10 @@ fn set_bomb(mut commands: Commands, mut events: EventReader<BombSetRequested>, t
                 ..Default::default()
             },
             event.player_transform, // Make transform from map point wher player set bomb
-            RigidBody::Dynamic,
+            // RigidBody::Dynamic,
+            RigidBody::Fixed,
+            Sensor,
+            ActiveEvents::COLLISION_EVENTS,
             Velocity::zero(),
             LockedAxes::ROTATION_LOCKED_Z,
             Collider::cuboid(BOMB_SIZE.x / 2.0, BOMB_SIZE.y / 2.0),
@@ -100,5 +106,42 @@ fn explode_bomb(
             bomb_transform: t.clone(),
             bomb_fire_range: b.fire_range,
         });
+    }
+}
+
+fn handle_collision_events(
+    mut commands: Commands,
+    mut collision_events: EventReader<CollisionEvent>,
+    players: Query<(), With<Player>>,
+    bombs: Query<(), With<Bomb>>,
+) {
+    for collision_event in collision_events.read() {
+        match collision_event {
+            CollisionEvent::Started(e1, e2, _) => {
+                if players.get(*e1).is_ok() || bombs.get(*e2).is_ok() {
+                    println!("Collision started: {:?} is Player and {:?} is Bomb", *e1, *e2);
+                } else if players.get(*e2).is_ok() || bombs.get(*e1).is_ok() {
+                    println!("Collision started: {:?} is Player and {:?} is Bomb", *e2, *e1);
+                } else {
+                    ()
+                }
+            }
+            CollisionEvent::Stopped(e1, e2, _) => {
+                if players.get(*e1).is_ok() || bombs.get(*e2).is_ok() {
+                    println!("Collision stopped: {:?} is Player and {:?} is Bomb", *e1, *e2);
+                    if commands.get_entity(*e2).is_some() {
+                        commands.entity(*e2).remove::<Sensor>();
+                    }
+                } else if players.get(*e2).is_ok() || bombs.get(*e1).is_ok() {
+                    println!("Collision stopped: {:?} is Player and {:?} is Bomb", *e2, *e1);
+                    if commands.get_entity(*e1).is_some() {
+                        commands.entity(*e1).remove::<Sensor>();
+                    }
+
+                } else {
+                    return;
+                }
+            }
+        }
     }
 }
