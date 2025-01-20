@@ -87,7 +87,7 @@ impl std::default::Default for Player {
             bomb_capacity: 1,
             fire_range: 2,
             curr_speed: 100.0,
-            bomb_detonation_period: 2.0,
+            bomb_detonation_period: bomb::DEFAULT_DETONATION_PERIOD,
         }
     }
 }

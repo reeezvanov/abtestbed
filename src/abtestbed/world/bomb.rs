@@ -1,7 +1,7 @@
 use std::time::Duration;
+use std::collections::HashSet;
 
 use bevy::prelude::*;
-use bevy::utils::HashSet;
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
@@ -9,6 +9,7 @@ use super::map;
 use super::player;
 use crate::abtestbed::setup;
 
+pub const DEFAULT_DETONATION_PERIOD: f32 = 3.0;
 const SIZE: Vec2 = Vec2::new(28.0, 28.0);
 const MASS: f32 = 100.0;
 const FRICTION: f32 = 0.0;
@@ -80,7 +81,6 @@ fn set_bomb(mut commands: Commands, mut events: EventReader<BombPlanted>, time: 
                 ..Default::default()
             },
             event.player_cell.center(),
-            // RigidBody::Dynamic,
             RigidBody::Fixed,
             Sensor,
             ActiveEvents::COLLISION_EVENTS,
