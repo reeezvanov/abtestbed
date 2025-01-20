@@ -10,7 +10,7 @@ use super::player;
 use crate::abtestbed::setup;
 
 pub const DEFAULT_DETONATION_PERIOD: f32 = 3.0;
-const SIZE: Vec2 = Vec2::new(28.0, 28.0);
+const SIZE: Vec2 = Vec2::new(32.0, 32.0);
 const MASS: f32 = 100.0;
 const FRICTION: f32 = 0.0;
 const RESTITUTION: f32 = 0.0;
@@ -78,7 +78,7 @@ fn set_bomb(mut commands: Commands, mut events: EventReader<BombPlanted>, time: 
             Sprite {
                 color: event.player_color.to_bevy_color(),
                 custom_size: Some(SIZE),
-                ..Default::default()
+                ..default()
             },
             event.player_cell.center(),
             RigidBody::Fixed,
