@@ -4,14 +4,14 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
-use super::super::common;
-use super::map::Cell;
-use super::player::{Player, PlayerColor};
+use super::map;
+use super::player;
+use crate::abtestbed::setup;
 
-const BOMB_SIZE: Vec2 = Vec2::new(28.0, 28.0);
-const BOMB_MASS: f32 = 100.0;
-const BOMB_FRICTION: f32 = 0.0;
-const BOMB_RESTITUTION: f32 = 0.0;
+const SIZE: Vec2 = Vec2::new(28.0, 28.0);
+const MASS: f32 = 100.0;
+const FRICTION: f32 = 0.0;
+const RESTITUTION: f32 = 0.0;
 
 pub struct BombPlugin;
 
@@ -29,8 +29,8 @@ impl Plugin for BombPlugin {
 #[derive(Event)]
 pub struct BombPlanted {
     pub player_id: Uuid,
-    pub player_color: PlayerColor,
-    pub player_cell: Cell,
+    pub player_color: player::PlayerColor,
+    pub player_cell: map::Cell,
     pub player_fire_range: u8,
     pub player_bomb_detonation_period: f32,
 }
@@ -38,15 +38,15 @@ pub struct BombPlanted {
 #[derive(Event)]
 pub struct BombExploded {
     pub player_id: Uuid,
-    pub bomb_color: PlayerColor,
-    pub bomb_cell: Cell,
+    pub bomb_color: player::PlayerColor,
+    pub bomb_cell: map::Cell,
     pub bomb_fire_range: u8,
 }
 
 #[derive(Component)]
 struct Bomb {
     player_id: Uuid,
-    color: PlayerColor,
+    color: player::PlayerColor,
     fire_range: u8,
     explode_at: Duration,
 }
@@ -63,7 +63,7 @@ fn set_bomb(mut commands: Commands, mut events: EventReader<BombPlanted>, time: 
             },
             Sprite {
                 color: event.player_color.to_bevy_color(),
-                custom_size: Some(BOMB_SIZE),
+                custom_size: Some(SIZE),
                 ..Default::default()
             },
             event.player_cell.center(),
@@ -73,14 +73,14 @@ fn set_bomb(mut commands: Commands, mut events: EventReader<BombPlanted>, time: 
             ActiveEvents::COLLISION_EVENTS,
             Velocity::zero(),
             LockedAxes::ROTATION_LOCKED_Z,
-            Collider::cuboid(BOMB_SIZE.x / 2.0, BOMB_SIZE.y / 2.0),
+            Collider::cuboid(SIZE.x / 2.0, SIZE.y / 2.0),
             CollisionGroups::new(
-                Group::from_bits(common::collision::policy::BOMB.0).unwrap(),
-                Group::from_bits(common::collision::policy::BOMB.1).unwrap(),
+                Group::from_bits(setup::collision::policy::BOMB.0).unwrap(),
+                Group::from_bits(setup::collision::policy::BOMB.1).unwrap(),
             ),
-            ColliderMassProperties::Mass(BOMB_MASS),
-            Friction::new(BOMB_FRICTION),
-            Restitution::new(BOMB_RESTITUTION),
+            ColliderMassProperties::Mass(MASS),
+            Friction::new(FRICTION),
+            Restitution::new(RESTITUTION),
             ExternalForce::default(),
         ));
     }
@@ -102,7 +102,7 @@ fn explode_bomb(
         events.send(BombExploded {
             player_id: b.player_id,
             bomb_color: b.color,
-            bomb_cell: Cell::from_transform(t),
+            bomb_cell: map::Cell::from_transform(t),
             bomb_fire_range: b.fire_range,
         });
     }
@@ -111,7 +111,7 @@ fn explode_bomb(
 fn handle_collision_events(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
-    players: Query<(), With<Player>>,
+    players: Query<(), With<player::Player>>,
     bombs: Query<(), With<Bomb>>,
 ) {
     for collision_event in collision_events.read() {
@@ -136,7 +136,6 @@ fn handle_collision_events(
                     if commands.get_entity(*e1).is_some() {
                         commands.entity(*e1).remove::<Sensor>();
                     }
-
                 } else {
                     return;
                 }
