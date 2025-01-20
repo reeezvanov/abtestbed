@@ -1,6 +1,15 @@
-pub mod CollisionMap {
-    pub struct CollisionPolicy(pub u32, pub u32);
+pub mod collision {
 
-    pub const PLAYER: CollisionPolicy = CollisionPolicy(0b00000001, 0b00000010);
-    pub const BOMB: CollisionPolicy = CollisionPolicy(0b00000010, 0b00000011);
+    pub mod group {
+        pub const PLAYER_GROUP: u32 = 0b00000001;
+        pub const BOMB_GROUP: u32 = 0b00000010;
+    }
+
+    pub mod policy {
+        pub const PLAYER: (u32, u32) = (super::group::PLAYER_GROUP, super::group::BOMB_GROUP);
+        pub const BOMB: (u32, u32) = (
+            super::group::BOMB_GROUP,
+            super::group::PLAYER_GROUP | super::group::BOMB_GROUP,
+        );
+    }
 }

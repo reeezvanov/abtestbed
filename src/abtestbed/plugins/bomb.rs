@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
-use super::super::common::CollisionMap;
+use super::super::common;
 use super::map::Cell;
 use super::player::{Player, PlayerColor};
 
@@ -75,8 +75,8 @@ fn set_bomb(mut commands: Commands, mut events: EventReader<BombPlanted>, time: 
             LockedAxes::ROTATION_LOCKED_Z,
             Collider::cuboid(BOMB_SIZE.x / 2.0, BOMB_SIZE.y / 2.0),
             CollisionGroups::new(
-                Group::from_bits(CollisionMap::BOMB.0).unwrap(),
-                Group::from_bits(CollisionMap::BOMB.1).unwrap(),
+                Group::from_bits(common::collision::policy::BOMB.0).unwrap(),
+                Group::from_bits(common::collision::policy::BOMB.1).unwrap(),
             ),
             ColliderMassProperties::Mass(BOMB_MASS),
             Friction::new(BOMB_FRICTION),

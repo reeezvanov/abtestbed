@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_rapier2d::{na::{Complex, ComplexField}, prelude::*};
+use bevy_rapier2d::{na::ComplexField, prelude::*};
 
 const MAP_SIZE: Vec2 = Vec2::new(600.0, 392.0);
 

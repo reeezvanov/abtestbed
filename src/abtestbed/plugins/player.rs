@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
-use super::super::common::CollisionMap;
+use super::super::common;
 use super::bomb::{BombExploded, BombPlanted};
 use super::map::Cell;
 
@@ -110,6 +110,11 @@ impl std::default::Default for Player {
 }
 
 fn spawn_players(mut commands: Commands) {
+    let collision_groups = CollisionGroups::new(
+        Group::from_bits(common::collision::policy::PLAYER.0).unwrap(),
+        Group::from_bits(common::collision::policy::PLAYER.1).unwrap(),
+    );
+
     commands.spawn((
         Player::default(),
         Sprite {
@@ -122,10 +127,7 @@ fn spawn_players(mut commands: Commands) {
         Velocity::zero(),
         LockedAxes::ROTATION_LOCKED_Z,
         Collider::cuboid(PLAYER_SIZE.x / 2.0, PLAYER_SIZE.y / 2.0),
-        CollisionGroups::new(
-            Group::from_bits(CollisionMap::PLAYER.0).unwrap(),
-            Group::from_bits(CollisionMap::PLAYER.1).unwrap(),
-        ),
+        collision_groups,
         ColliderMassProperties::Mass(PLAYER_MASS),
         Friction::new(PLAYER_FRICTION),
         Restitution::new(PLAYER_RESTITUTION),
@@ -154,10 +156,7 @@ fn spawn_players(mut commands: Commands) {
         Velocity::zero(),
         LockedAxes::ROTATION_LOCKED_Z,
         Collider::cuboid(PLAYER_SIZE.x / 2.0, PLAYER_SIZE.y / 2.0),
-        CollisionGroups::new(
-            Group::from_bits(CollisionMap::PLAYER.0).unwrap(),
-            Group::from_bits(CollisionMap::PLAYER.1).unwrap(),
-        ),
+        collision_groups,
         ColliderMassProperties::Mass(PLAYER_MASS),
         Friction::new(PLAYER_FRICTION),
         Restitution::new(PLAYER_RESTITUTION),
