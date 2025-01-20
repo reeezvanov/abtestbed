@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
+use bevy::utils::HashSet;
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
@@ -17,13 +18,25 @@ pub struct BombPlugin;
 
 impl Plugin for BombPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<BombPlanted>()
+        app.insert_resource(PlantedBombs::default())
+            .add_event::<BombPlanted>()
             .add_event::<BombExploded>()
             .add_systems(
                 Update,
-                (set_bomb, explode_bomb, handle_collision_events).chain(),
+                (
+                    set_bomb,
+                    explode_bomb,
+                    handle_collision_events,
+                    track_planted_bombs,
+                )
+                    .chain(),
             );
     }
+}
+
+#[derive(Resource, Default)]
+pub struct PlantedBombs {
+    pub set: HashSet<map::Cell>,
 }
 
 #[derive(Event)]
@@ -105,6 +118,20 @@ fn explode_bomb(
             bomb_cell: map::Cell::from_transform(t),
             bomb_fire_range: b.fire_range,
         });
+    }
+}
+
+fn track_planted_bombs(
+    mut bomb_planted_events: EventReader<BombPlanted>,
+    mut bomb_exploded_events: EventReader<BombExploded>,
+    mut planted_bombs: ResMut<PlantedBombs>,
+) {
+    for bp_event in bomb_planted_events.read() {
+        planted_bombs.set.insert(bp_event.player_cell);
+    }
+
+    for be_event in bomb_exploded_events.read() {
+        planted_bombs.set.remove(&be_event.bomb_cell);
     }
 }
 

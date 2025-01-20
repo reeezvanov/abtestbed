@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 
 mod map;
-mod block;
-mod bomb;
 mod border;
+mod block;
 mod brick;
-mod explosion;
 mod player;
+mod bomb;
+mod explosion;
 
 pub struct WorldPlugin;
 
@@ -15,8 +15,8 @@ impl Plugin for WorldPlugin {
         app.add_plugins(border::BorderPlugin)
             .add_plugins(block::BlockPlugin)
             .add_plugins(brick::BrickPlugin)
-            .add_plugins(player::PlayerPlugin)
+            .add_plugins(explosion::ExplosionPlugin)
             .add_plugins(bomb::BombPlugin)
-            .add_plugins(explosion::ExplosionPlugin);
+            .add_plugins(player::PlayerPlugin);
     }
 }

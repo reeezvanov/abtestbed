@@ -11,7 +11,7 @@ pub const CELL_START_POS: Vec2 = Vec2::new(
 );
 
 
-#[derive(Debug, Copy, Clone, Default)]
+#[derive(Debug, Copy, Clone, Default, Hash, PartialEq, Eq)]
 pub struct Cell(pub u8, pub u8);
 
 impl Cell {

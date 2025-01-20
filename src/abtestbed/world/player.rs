@@ -151,6 +151,7 @@ fn update_player_input(
     kbd_input: Res<ButtonInput<KeyCode>>,
     mut query: Query<(&mut Player, &Transform)>,
     mut events: EventWriter<bomb::BombPlanted>,
+    planted_bombs: Res<bomb::PlantedBombs>,
 ) {
     for (mut player, transform) in &mut query {
         let move_west = kbd_input.pressed(player.controls.move_west);
@@ -161,11 +162,16 @@ fn update_player_input(
         player.inputs.horizontal_direction = move_east as i8 - move_west as i8;
         player.inputs.vertical_direction = move_north as i8 - move_south as i8;
 
-        if kbd_input.just_pressed(player.controls.set_bomb) && player.bomb_capacity > 0 {
+        let player_cell = map::Cell::from_transform(transform);
+
+        if kbd_input.just_pressed(player.controls.set_bomb)
+            && player.bomb_capacity > 0
+            && !planted_bombs.set.contains(&player_cell)
+        {
             events.send(bomb::BombPlanted {
                 player_id: player.id,
                 player_color: player.color,
-                player_cell: map::Cell::from_transform(transform),
+                player_cell: player_cell,
                 player_fire_range: player.fire_range,
                 player_bomb_detonation_period: player.bomb_detonation_period,
             });
