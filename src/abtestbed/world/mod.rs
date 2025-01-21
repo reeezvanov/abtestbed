@@ -12,7 +12,8 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(border::BorderPlugin)
+        app.add_plugins(map::MapPlugin)
+            .add_plugins(border::BorderPlugin)
             .add_plugins(block::BlockPlugin)
             .add_plugins(brick::BrickPlugin)
             .add_plugins(explosion::ExplosionPlugin)
