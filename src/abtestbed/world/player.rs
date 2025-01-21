@@ -4,10 +4,14 @@ use uuid::Uuid;
 
 use super::bomb;
 use super::map;
+use super::explosion;
 use crate::abtestbed::setup;
 
-const SIZE: Vec2 = Vec2::new(27.0, 27.0);
 const DEFAULT_SPEED: f32 = 70.0;
+const DEFAULT_FIRE_RANGE: u8 = 2;
+const DEFAULT_BOMB_CAPACITY: u8 = 1;
+
+const SIZE: Vec2 = Vec2::new(27.0, 27.0);
 const MASS: f32 = 100.0;
 const FRICTION: f32 = 0.0;
 const RESTITUTION: f32 = 0.0;
@@ -85,8 +89,8 @@ impl std::default::Default for Player {
             color: PlayerColor::White,
             controls: ControlKeys::default(),
             inputs: InputState::default(),
-            bomb_capacity: 1,
-            fire_range: 1,
+            bomb_capacity: DEFAULT_BOMB_CAPACITY,
+            fire_range: DEFAULT_FIRE_RANGE,
             curr_speed: DEFAULT_SPEED,
             bomb_detonation_period: bomb::DEFAULT_DETONATION_PERIOD,
         }
@@ -135,7 +139,7 @@ fn spawn_players(mut commands: Commands) {
             custom_size: Some(SIZE),
             ..default()
         },
-        map::Cell(5, 2).center(),
+        map::Cell(2, 2).center(),
         RigidBody::Dynamic,
         Velocity::zero(),
         LockedAxes::ROTATION_LOCKED_Z,
