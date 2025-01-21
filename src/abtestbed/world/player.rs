@@ -252,7 +252,7 @@ fn track_explosion_players(
                 } else {
                     return;
                 }
-                println!("Player collision event");
+
                 commands.entity(*player_entity).despawn();
             }
             _ => {}
