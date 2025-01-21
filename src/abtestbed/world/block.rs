@@ -16,14 +16,10 @@ impl Plugin for BlockPlugin {
     }
 }
 
-fn spawn_blocks(mut commands: Commands) {
-    for j in 0..map::NET_SIZE.1 as u8 {
-        if j % 2 == 0 {
-            continue;
-        }
-
+fn spawn_blocks(mut commands: Commands, map_state: Res<map::MapState>) {
+    for j in 0..map::NET_SIZE.1 {
         for i in 0..map::NET_SIZE.0 {
-            if i % 2 == 0 {
+            if map_state.scheme[j as usize][i as usize] != map::legend::BLOCK {
                 continue;
             }
 

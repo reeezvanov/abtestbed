@@ -1,6 +1,5 @@
-use bevy::prelude::{Vec2, Transform};
+use bevy::prelude::*;
 use bevy_rapier2d::na::ComplexField;
-
 
 pub const SIZE: Vec2 = Vec2::new(600.0, 392.0);
 pub const NET_SIZE: (u8, u8) = (15, 11);
@@ -10,6 +9,13 @@ pub const CELL_START_POS: Vec2 = Vec2::new(
     (SIZE.y / 2.0) - (CELL_SIZE.y / 2.0),
 );
 
+pub struct MapPlugin;
+
+impl Plugin for MapPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(MapState::default());
+    }
+}
 
 #[derive(Debug, Copy, Clone, Default, Hash, PartialEq, Eq)]
 pub struct Cell(pub u8, pub u8);
@@ -30,5 +36,37 @@ impl Cell {
             CELL_START_POS.y - (self.1 as f32 * CELL_SIZE.y),
             0.0,
         )
+    }
+}
+
+pub mod legend {
+    pub const EMPTY: u8 = 0;
+    pub const BLOCK: u8 = 1;
+    pub const BRICK: u8 = 2;
+    pub const SPAWN: u8 = 3;
+}
+
+#[derive(Resource)]
+pub struct MapState {
+    pub scheme: [[u8; 15]; 11],
+}
+
+impl Default for MapState {
+    fn default() -> Self {
+        MapState {
+            scheme: [
+                [0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+                [0, 1, 0, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2],
+                [0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+                [2, 1, 0, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2],
+                [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+                [2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2],
+                [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+                [2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2],
+                [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+                [2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2],
+                [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ],
+        }
     }
 }
