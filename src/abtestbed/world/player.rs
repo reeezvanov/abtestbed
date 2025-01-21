@@ -3,8 +3,8 @@ use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
 use super::bomb;
-use super::map;
 use super::explosion;
+use super::map;
 use crate::abtestbed::setup;
 
 const DEFAULT_SPEED: f32 = 70.0;
@@ -22,7 +22,12 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_players).add_systems(
             Update,
-            (update_player_input, movement_system, handle_bomb_exploded).chain(),
+            (
+                update_player_input,
+                movement_system,
+                handle_bomb_exploded,
+                track_explosion_players,
+            ),
         );
     }
 }
@@ -225,6 +230,32 @@ fn handle_bomb_exploded(
                 player.bomb_capacity += 1;
                 break;
             }
+        }
+    }
+}
+
+fn track_explosion_players(
+    mut commands: Commands,
+    mut collision_events: EventReader<CollisionEvent>,
+    explosions: Query<(), With<explosion::Explosion>>,
+    players: Query<((), &Player)>,
+) {
+    for collision_event in collision_events.read() {
+        match collision_event {
+            CollisionEvent::Started(e1, e2, _) => {
+                let player_entity;
+
+                if explosions.get(*e1).is_ok() && players.get(*e2).is_ok() {
+                    player_entity = e2;
+                } else if explosions.get(*e2).is_ok() && players.get(*e1).is_ok() {
+                    player_entity = e1;
+                } else {
+                    return;
+                }
+                println!("Player collision event");
+                commands.entity(*player_entity).despawn();
+            }
+            _ => {}
         }
     }
 }
