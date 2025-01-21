@@ -25,7 +25,7 @@ pub struct Explosion {
 fn spawn_explosion(
     mut commands: Commands,
     mut bomb_exploded_events: EventReader<bomb::BombExploded>,
-    time: Res<Time>,
+    map_state: Res<map::MapState>,
 ) {
     for be_event in bomb_exploded_events.read() {
         let mut cells = Vec::<map::Cell>::new();
@@ -39,8 +39,18 @@ fn spawn_explosion(
             be_event.bomb_cell.1 as i8 - be_event.bomb_fire_range as i8,
         ) as u8;
         let y = be_event.bomb_cell.1;
-        for j in x..y {
-            cells.push(map::Cell(be_event.bomb_cell.0, j));
+        for j in (x..y).rev() {
+            let cell = map::Cell(be_event.bomb_cell.0, j);
+
+            if map_state.scheme[cell.0 as usize][cell.1 as usize] == map::legend::BLOCK {
+                break;
+            }
+
+            cells.push(cell);
+
+            if map_state.scheme[cell.0 as usize][cell.1 as usize] == map::legend::BRICK {
+                break;
+            }
         }
 
         // Generate south side
@@ -50,7 +60,17 @@ fn spawn_explosion(
             be_event.bomb_cell.1 + be_event.bomb_fire_range,
         ) + 1;
         for j in x..y {
-            cells.push(map::Cell(be_event.bomb_cell.0, j));
+            let cell = map::Cell(be_event.bomb_cell.0, j);
+
+            if map_state.scheme[cell.0 as usize][cell.1 as usize] == map::legend::BLOCK {
+                break;
+            }
+
+            cells.push(cell);
+
+            if map_state.scheme[cell.0 as usize][cell.1 as usize] == map::legend::BRICK {
+                break;
+            }
         }
 
         // Generate west side
@@ -59,8 +79,18 @@ fn spawn_explosion(
             be_event.bomb_cell.0 as i8 - be_event.bomb_fire_range as i8,
         ) as u8;
         let y = be_event.bomb_cell.0;
-        for i in x..y {
-            cells.push(map::Cell(i, be_event.bomb_cell.1));
+        for i in (x..y).rev() {
+            let cell = map::Cell(i, be_event.bomb_cell.1);
+
+            if map_state.scheme[cell.0 as usize][cell.1 as usize] == map::legend::BLOCK {
+                break;
+            }
+
+            cells.push(cell);
+
+            if map_state.scheme[cell.0 as usize][cell.1 as usize] == map::legend::BRICK {
+                break;
+            }
         }
 
         // Generate east side
@@ -70,25 +100,32 @@ fn spawn_explosion(
             be_event.bomb_cell.0 + be_event.bomb_fire_range,
         ) + 1;
         for i in x..y {
-            cells.push(map::Cell(i, be_event.bomb_cell.1));
+            let cell = map::Cell(i, be_event.bomb_cell.1);
+
+            if map_state.scheme[cell.0 as usize][cell.1 as usize] == map::legend::BLOCK {
+                break;
+            }
+
+            cells.push(cell);
+
+            if map_state.scheme[cell.0 as usize][cell.1 as usize] == map::legend::BRICK {
+                break;
+            }
         }
-        
+
         for cell in cells {
             commands.spawn((
-                Explosion {
-                    extinguish_at: time.elapsed()
-                        + Duration::from_secs_f32(DEFAULT_EXPLOSIAN_PERIOD),
-                },
+                Explosion::default(),
                 Sprite {
-                    color: be_event.bomb_color.to_bevy_color(),
+                    color: be_event.player_color.to_bevy_color(),
                     custom_size: Some(SIZE),
                     ..default()
                 },
                 cell.center(),
-                RigidBody::Fixed,
-                Collider::cuboid(SIZE.x / 2.0, SIZE.y / 2.0),
+                RigidBody::Dynamic,
                 Sensor,
                 ActiveEvents::COLLISION_EVENTS,
+                Collider::cuboid(SIZE.x / 2.0, SIZE.y / 2.0),
             ));
         }
     }
