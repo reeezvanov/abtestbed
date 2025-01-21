@@ -6,8 +6,8 @@ use bevy_rapier2d::prelude::*;
 use super::bomb;
 use super::map;
 
-const SIZE: Vec2 = Vec2::new(28.0, 28.0);
-const DEFAULT_EXPLOSIAN_PERIOD: f32 = 4.0;
+const SIZE: Vec2 = Vec2::new(36.0, 32.0);
+const DEFAULT_EXPLOSIAN_PERIOD: f32 = 0.8;
 
 pub struct ExplosionPlugin;
 

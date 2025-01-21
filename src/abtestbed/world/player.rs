@@ -7,6 +7,7 @@ use super::map;
 use crate::abtestbed::setup;
 
 const SIZE: Vec2 = Vec2::new(27.0, 27.0);
+const DEFAULT_SPEED: f32 = 70.0;
 const MASS: f32 = 100.0;
 const FRICTION: f32 = 0.0;
 const RESTITUTION: f32 = 0.0;
@@ -86,7 +87,7 @@ impl std::default::Default for Player {
             inputs: InputState::default(),
             bomb_capacity: 1,
             fire_range: 1,
-            curr_speed: 60.0,
+            curr_speed: DEFAULT_SPEED,
             bomb_detonation_period: bomb::DEFAULT_DETONATION_PERIOD,
         }
     }

@@ -9,7 +9,7 @@ use super::map;
 use super::player;
 use crate::abtestbed::setup;
 
-pub const DEFAULT_DETONATION_PERIOD: f32 = 3.0;
+pub const DEFAULT_DETONATION_PERIOD: f32 = 2.0;
 const SIZE: Vec2 = Vec2::new(32.0, 32.0);
 const MASS: f32 = 100.0;
 const FRICTION: f32 = 0.0;
