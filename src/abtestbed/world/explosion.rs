@@ -127,6 +127,7 @@ fn spawn_explosion(
                 cell.center(),
                 RigidBody::Dynamic,
                 Sensor,
+                LockedAxes::TRANSLATION_LOCKED,
                 ActiveEvents::COLLISION_EVENTS,
                 Collider::cuboid(SIZE.x / 2.0, SIZE.y / 2.0),
             ));
