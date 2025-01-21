@@ -11,7 +11,7 @@ use super::player;
 use crate::abtestbed::setup;
 
 pub const DEFAULT_DETONATION_PERIOD: f32 = 2.0;
-const SIZE: Vec2 = Vec2::new(32.0, 32.0);
+const SIZE: Vec2 = Vec2::new(40.0, 36.0);
 const MASS: f32 = 100.0;
 const FRICTION: f32 = 0.0;
 const RESTITUTION: f32 = 0.0;
@@ -30,6 +30,7 @@ impl Plugin for BombPlugin {
                     explode_bomb,
                     track_planted_bombs,
                     track_explosion_bombs,
+                    track_player_gone,
                 )
                     .chain(),
             );
@@ -63,6 +64,7 @@ pub struct Bomb {
     pub player_id: Uuid,
     pub player_color: player::PlayerColor,
     pub fire_range: u8,
+    players_at_bomb_count: u8,
     explode_at: Duration,
 }
 
@@ -73,6 +75,7 @@ fn set_bomb(mut commands: Commands, mut events: EventReader<BombPlanted>, time: 
                 player_id: event.player_id,
                 player_color: event.player_color,
                 fire_range: event.player_fire_range,
+                players_at_bomb_count: 0,
                 explode_at: time.elapsed()
                     + Duration::from_secs_f32(event.player_bomb_detonation_period),
             },
@@ -82,11 +85,11 @@ fn set_bomb(mut commands: Commands, mut events: EventReader<BombPlanted>, time: 
                 ..default()
             },
             event.player_cell.center(),
-            RigidBody::Fixed,
+            RigidBody::Dynamic,
             Sensor,
             ActiveEvents::COLLISION_EVENTS,
             Velocity::zero(),
-            LockedAxes::ROTATION_LOCKED_Z,
+            LockedAxes::TRANSLATION_LOCKED | LockedAxes::ROTATION_LOCKED,
             Collider::cuboid(SIZE.x / 2.0, SIZE.y / 2.0),
             CollisionGroups::new(
                 Group::from_bits(setup::collision::policy::BOMB.0).unwrap(),
@@ -119,6 +122,57 @@ fn explode_bomb(
             bomb_cell: map::Cell::from_transform(t),
             bomb_fire_range: b.fire_range,
         });
+    }
+}
+
+fn track_player_gone(
+    mut commands: Commands, 
+    mut collision_events: EventReader<CollisionEvent>,
+    mut bombs: Query<(Entity, &mut Bomb), With<Sensor>>,
+    players: Query<(), With<player::Player>>,
+) {
+    for collision_event in collision_events.read() {
+        match collision_event {
+            CollisionEvent::Started(e1, e2, _) => {
+                let bomb_entity;
+
+                if players.get(*e1).is_ok() && bombs.get(*e2).is_ok() {
+                    bomb_entity = e2;
+                } else if players.get(*e2).is_ok() && bombs.get(*e1).is_ok() {
+                    bomb_entity = e1;
+                } else {
+                    return;
+                }
+
+                for (e, mut b) in &mut bombs {
+                    if e.index() == bomb_entity.index() {
+                        b.players_at_bomb_count += 1;
+                    }
+                }
+            }
+            CollisionEvent::Stopped(e1, e2, _) => {
+                let bomb_entity;
+
+                if players.get(*e1).is_ok() && bombs.get(*e2).is_ok() {
+                    bomb_entity = e2;
+                } else if players.get(*e2).is_ok() && bombs.get(*e1).is_ok() {
+                    bomb_entity = e1;
+                } else {
+                    return;
+                }
+
+                for (e, mut b) in &mut bombs {
+                    if e.index() == bomb_entity.index() {
+                        b.players_at_bomb_count -= 1;
+
+                        if b.players_at_bomb_count == 0 {
+                            commands.entity(*bomb_entity).remove::<Sensor>();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
