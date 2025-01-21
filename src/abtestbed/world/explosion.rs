@@ -7,7 +7,7 @@ use super::bomb;
 use super::map;
 
 const SIZE: Vec2 = Vec2::new(36.0, 32.0);
-const DEFAULT_EXPLOSIAN_PERIOD: f32 = 0.8;
+const DEFAULT_EXPLOSION_PERIOD: f32 = 0.8;
 
 pub struct ExplosionPlugin;
 
@@ -17,7 +17,7 @@ impl Plugin for ExplosionPlugin {
     }
 }
 
-#[derive(Component, Default)]
+#[derive(Component)]
 pub struct Explosion {
     extinguish_at: Duration,
 }
@@ -25,6 +25,7 @@ pub struct Explosion {
 fn spawn_explosion(
     mut commands: Commands,
     mut bomb_exploded_events: EventReader<bomb::BombExploded>,
+    time: Res<Time>,
     map_state: Res<map::MapState>,
 ) {
     for be_event in bomb_exploded_events.read() {
@@ -115,7 +116,9 @@ fn spawn_explosion(
 
         for cell in cells {
             commands.spawn((
-                Explosion::default(),
+                Explosion {
+                    extinguish_at: time.elapsed() + Duration::from_secs_f32(DEFAULT_EXPLOSION_PERIOD)
+                },
                 Sprite {
                     color: be_event.player_color.to_bevy_color(),
                     custom_size: Some(SIZE),
