@@ -3,9 +3,10 @@ use bevy_rapier2d::prelude::*;
 
 use super::explosion;
 use super::map;
+use super::map::Cell;
 
 const FRICTION: f32 = 0.0;
-const SIZE: Vec2 = Vec2::new(36.0, 36.0);
+const SIZE: Vec2 = Vec2::new(40.0, 36.0);
 const MAIN_COLOR: Color = Color::srgb(0.1, 0.1, 0.7);
 
 pub struct BrickPlugin;
@@ -52,7 +53,8 @@ fn track_explosion_bricks(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     explosions: Query<(), With<explosion::Explosion>>,
-    bricks: Query<(), With<Brick>>,
+    bricks: Query<(Entity, &Transform, &Brick)>,
+    mut map_state: ResMut<map::MapState>,
 ) {
     for collision_event in collision_events.read() {
         match collision_event {
@@ -67,7 +69,13 @@ fn track_explosion_bricks(
                     return;
                 }
 
-                commands.entity(*brick_entity).despawn();
+                for (e, t, _) in &bricks {
+                    if e.index() == brick_entity.index() {
+                        let cell = Cell::from_transform(&t);
+                        map_state.scheme[cell.0 as usize][cell.1 as usize] = map::legend::EMPTY;
+                        commands.entity(*brick_entity).despawn();
+                    }
+                }
             }
             _ => {}
         }
