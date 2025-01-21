@@ -43,7 +43,6 @@ pub mod legend {
     pub const EMPTY: u8 = 0;
     pub const BLOCK: u8 = 1;
     pub const BRICK: u8 = 2;
-    pub const SPAWN: u8 = 3;
 }
 
 #[derive(Resource)]
