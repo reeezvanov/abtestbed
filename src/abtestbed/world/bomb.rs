@@ -1,10 +1,11 @@
-use std::time::Duration;
 use std::collections::HashSet;
+use std::time::Duration;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
+use super::explosion;
 use super::map;
 use super::player;
 use crate::abtestbed::setup;
@@ -27,8 +28,8 @@ impl Plugin for BombPlugin {
                 (
                     set_bomb,
                     explode_bomb,
-                    handle_collision_events,
                     track_planted_bombs,
+                    track_explosion_bombs,
                 )
                     .chain(),
             );
@@ -52,16 +53,16 @@ pub struct BombPlanted {
 #[derive(Event)]
 pub struct BombExploded {
     pub player_id: Uuid,
-    pub bomb_color: player::PlayerColor,
+    pub player_color: player::PlayerColor,
     pub bomb_cell: map::Cell,
     pub bomb_fire_range: u8,
 }
 
 #[derive(Component)]
-struct Bomb {
-    player_id: Uuid,
-    color: player::PlayerColor,
-    fire_range: u8,
+pub struct Bomb {
+    pub player_id: Uuid,
+    pub player_color: player::PlayerColor,
+    pub fire_range: u8,
     explode_at: Duration,
 }
 
@@ -70,7 +71,7 @@ fn set_bomb(mut commands: Commands, mut events: EventReader<BombPlanted>, time: 
         commands.spawn((
             Bomb {
                 player_id: event.player_id,
-                color: event.player_color,
+                player_color: event.player_color,
                 fire_range: event.player_fire_range,
                 explode_at: time.elapsed()
                     + Duration::from_secs_f32(event.player_bomb_detonation_period),
@@ -114,7 +115,7 @@ fn explode_bomb(
 
         events.send(BombExploded {
             player_id: b.player_id,
-            bomb_color: b.color,
+            player_color: b.player_color,
             bomb_cell: map::Cell::from_transform(t),
             bomb_fire_range: b.fire_range,
         });
@@ -135,38 +136,40 @@ fn track_planted_bombs(
     }
 }
 
-fn handle_collision_events(
+fn track_explosion_bombs(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
-    players: Query<(), With<player::Player>>,
-    bombs: Query<(), With<Bomb>>,
+    mut bomb_exploded_events: EventWriter<BombExploded>,
+    explosions: Query<(), With<explosion::Explosion>>,
+    bombs: Query<(Entity, &Bomb, &Transform)>,
 ) {
     for collision_event in collision_events.read() {
         match collision_event {
             CollisionEvent::Started(e1, e2, _) => {
-                if players.get(*e1).is_ok() || bombs.get(*e2).is_ok() {
-                    // println!("Collision started: {:?} is Player and {:?} is Bomb", *e1, *e2);
-                } else if players.get(*e2).is_ok() || bombs.get(*e1).is_ok() {
-                    // println!("Collision started: {:?} is Player and {:?} is Bomb", *e2, *e1);
-                } else {
-                    ()
-                }
-            }
-            CollisionEvent::Stopped(e1, e2, _) => {
-                if players.get(*e1).is_ok() || bombs.get(*e2).is_ok() {
-                    // println!("Collision stopped: {:?} is Player and {:?} is Bomb", *e1, *e2);
-                    if commands.get_entity(*e2).is_some() {
-                        commands.entity(*e2).remove::<Sensor>();
-                    }
-                } else if players.get(*e2).is_ok() || bombs.get(*e1).is_ok() {
-                    // println!("Collision stopped: {:?} is Player and {:?} is Bomb", *e2, *e1);
-                    if commands.get_entity(*e1).is_some() {
-                        commands.entity(*e1).remove::<Sensor>();
-                    }
+                let bomb_entity;
+
+                if explosions.get(*e1).is_ok() && bombs.get(*e2).is_ok() {
+                    bomb_entity = e2;
+                } else if explosions.get(*e2).is_ok() && bombs.get(*e1).is_ok() {
+                    bomb_entity = e1;
                 } else {
                     return;
                 }
+
+                for (e, b, t) in &bombs {
+                    if e.index() == bomb_entity.index() {
+                        bomb_exploded_events.send(BombExploded {
+                            player_id: b.player_id,
+                            player_color: b.player_color,
+                            bomb_cell: map::Cell::from_transform(t),
+                            bomb_fire_range: b.fire_range,
+                        });
+                    }
+                }
+
+                commands.entity(*bomb_entity).despawn();
             }
+            _ => {}
         }
     }
 }
