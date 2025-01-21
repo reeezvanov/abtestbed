@@ -85,7 +85,7 @@ impl std::default::Default for Player {
             controls: ControlKeys::default(),
             inputs: InputState::default(),
             bomb_capacity: 1,
-            fire_range: 2,
+            fire_range: 1,
             curr_speed: 60.0,
             bomb_detonation_period: bomb::DEFAULT_DETONATION_PERIOD,
         }

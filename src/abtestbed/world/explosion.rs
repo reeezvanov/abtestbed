@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::time::Duration;
 
 use bevy::prelude::*;
@@ -6,9 +7,8 @@ use bevy_rapier2d::prelude::*;
 use super::bomb;
 use super::map;
 
-const VER_SIZE: Vec2 = Vec2::new(26.0, 36.0);
-const HOR_SIZE: Vec2 = Vec2::new(34.0, 26.0);
-const DEFAULT_EXPLOSIAN_PERIOD: f32 = 5.0;
+const SIZE: Vec2 = Vec2::new(28.0, 28.0);
+const DEFAULT_EXPLOSIAN_PERIOD: f32 = 4.0;
 
 pub struct ExplosionPlugin;
 
@@ -29,76 +29,52 @@ fn spawn_explosion(
     time: Res<Time>,
 ) {
     for be_event in bomb_exploded_events.read() {
+        let mut cells = Vec::<map::Cell>::new();
+
+        // Generate middle
+        cells.push(be_event.bomb_cell);
+
         // Generate north side
-        let x = std::cmp::max(0, be_event.bomb_cell.1 as i8 - be_event.bomb_fire_range as i8) as u8;
+        let x = std::cmp::max(
+            0,
+            be_event.bomb_cell.1 as i8 - be_event.bomb_fire_range as i8,
+        ) as u8;
         let y = be_event.bomb_cell.1;
         for j in x..y {
-            commands.spawn((
-                Explosion {
-                    extinguish_at: time.elapsed()
-                        + Duration::from_secs_f32(DEFAULT_EXPLOSIAN_PERIOD),
-                },
-                Sprite {
-                    color: be_event.bomb_color.to_bevy_color(),
-                    custom_size: Some(VER_SIZE),
-                    ..default()
-                },
-                map::Cell(be_event.bomb_cell.0, j).center(),
-                RigidBody::Fixed,
-                Collider::cuboid(VER_SIZE.x / 2.0, VER_SIZE.y / 2.0),
-                Sensor,
-                ActiveEvents::COLLISION_EVENTS,
-            ));
+            cells.push(map::Cell(be_event.bomb_cell.0, j));
         }
 
         // Generate south side
-        let x = be_event.bomb_cell.1;
-        let y = std::cmp::min(map::NET_SIZE.1 - 1, be_event.bomb_cell.1 + be_event.bomb_fire_range) + 1;
+        let x = be_event.bomb_cell.1 + 1;
+        let y = std::cmp::min(
+            map::NET_SIZE.1 - 1,
+            be_event.bomb_cell.1 + be_event.bomb_fire_range,
+        ) + 1;
         for j in x..y {
-            commands.spawn((
-                Explosion {
-                    extinguish_at: time.elapsed()
-                        + Duration::from_secs_f32(DEFAULT_EXPLOSIAN_PERIOD),
-                },
-                Sprite {
-                    color: be_event.bomb_color.to_bevy_color(),
-                    custom_size: Some(VER_SIZE),
-                    ..default()
-                },
-                map::Cell(be_event.bomb_cell.0, j).center(),
-                RigidBody::Fixed,
-                Collider::cuboid(VER_SIZE.x / 2.0, VER_SIZE.y / 2.0),
-                Sensor,
-                ActiveEvents::COLLISION_EVENTS,
-            ));
+            cells.push(map::Cell(be_event.bomb_cell.0, j));
         }
 
         // Generate west side
-        let x = std::cmp::max(0, be_event.bomb_cell.0 as i8 - be_event.bomb_fire_range as i8) as u8;
+        let x = std::cmp::max(
+            0,
+            be_event.bomb_cell.0 as i8 - be_event.bomb_fire_range as i8,
+        ) as u8;
         let y = be_event.bomb_cell.0;
         for i in x..y {
-            commands.spawn((
-                Explosion {
-                    extinguish_at: time.elapsed()
-                        + Duration::from_secs_f32(DEFAULT_EXPLOSIAN_PERIOD),
-                },
-                Sprite {
-                    color: be_event.bomb_color.to_bevy_color(),
-                    custom_size: Some(HOR_SIZE),
-                    ..default()
-                },
-                map::Cell(i, be_event.bomb_cell.1).center(),
-                RigidBody::Fixed,
-                Collider::cuboid(HOR_SIZE.x / 2.0, HOR_SIZE.y / 2.0),
-                Sensor,
-                ActiveEvents::COLLISION_EVENTS,
-            ));
+            cells.push(map::Cell(i, be_event.bomb_cell.1));
         }
 
         // Generate east side
-        let x = be_event.bomb_cell.0;
-        let y = std::cmp::min(map::NET_SIZE.0 - 1, be_event.bomb_cell.0 + be_event.bomb_fire_range) + 1;
+        let x = be_event.bomb_cell.0 + 1;
+        let y = std::cmp::min(
+            map::NET_SIZE.0 - 1,
+            be_event.bomb_cell.0 + be_event.bomb_fire_range,
+        ) + 1;
         for i in x..y {
+            cells.push(map::Cell(i, be_event.bomb_cell.1));
+        }
+        
+        for cell in cells {
             commands.spawn((
                 Explosion {
                     extinguish_at: time.elapsed()
@@ -106,12 +82,12 @@ fn spawn_explosion(
                 },
                 Sprite {
                     color: be_event.bomb_color.to_bevy_color(),
-                    custom_size: Some(HOR_SIZE),
+                    custom_size: Some(SIZE),
                     ..default()
                 },
-                map::Cell(i, be_event.bomb_cell.1).center(),
+                cell.center(),
                 RigidBody::Fixed,
-                Collider::cuboid(HOR_SIZE.x / 2.0, HOR_SIZE.y / 2.0),
+                Collider::cuboid(SIZE.x / 2.0, SIZE.y / 2.0),
                 Sensor,
                 ActiveEvents::COLLISION_EVENTS,
             ));
